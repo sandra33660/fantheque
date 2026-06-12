@@ -13,7 +13,7 @@ const C = {
   fond: "#FCFAF7",
   charbon: "#2B2627",
   taupe: "#A89B96",
-  nude: "#C9897B", // rose nude — l'unique accent
+  nude: "#C9897B",       // rose nude — l'unique accent
   nudePale: "#F4E7E2",
   filet: "#ECE5DF",
 };
@@ -87,32 +87,19 @@ const FICS = [
 
 /* Signature : ligne de progression fine comme un trait de crayon */
 const Trait = ({ lus, total }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-    <div style={{ flex: 1, height: 1, background: C.filet, position: "relative" }}>
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          top: -0.5,
-          height: 2,
-          width: `${Math.round((lus / total) * 100)}%`,
-          background: C.nude,
-          transition: "width .4s ease",
-        }}
-      />
-    </div>
-    <span
+  <div style={{ position: "relative", height: 2, background: C.filet, borderRadius: 2 }}>
+    <div
       style={{
-        fontFamily: sans,
-        fontSize: 10,
-        fontWeight: 400,
-        letterSpacing: 1,
-        color: C.taupe,
-        whiteSpace: "nowrap",
+        position: "absolute",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: `${(lus / total) * 100}%`,
+        background: C.nude,
+        borderRadius: 2,
+        transition: "width .4s ease",
       }}
-    >
-      {lus} / {total}
-    </span>
+    />
   </div>
 );
 
@@ -187,11 +174,9 @@ function Bibliotheque({ ouvrirFic }) {
     { id: "finies", label: "Terminées" },
   ];
   const fics = FICS.filter((f) => f.liste === onglet);
-
   return (
     <div style={{ padding: "0 24px" }}>
-      <Entete titre="Ma bibliothèque" />
-
+      <Entete titre="Bibliothèque" />
       <div style={{ display: "flex", justifyContent: "center", gap: 26, padding: "14px 0 10px" }}>
         {onglets.map((o) => {
           const actif = onglet === o.id;
@@ -219,71 +204,69 @@ function Bibliotheque({ ouvrirFic }) {
         })}
       </div>
 
-      {fics.map((f, i) => (
-        <div
-          key={f.id}
-          onClick={() => ouvrirFic(f)}
-          style={{
-            padding: "20px 2px",
-            borderBottom: i < fics.length - 1 ? `1px solid ${C.filet}` : "none",
-            cursor: "pointer",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <Etiquette>
-              {f.plateforme} · {f.statut}
-            </Etiquette>
-            <Etoiles n={f.note} taille={11} />
-          </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingTop: 6 }}>
+        {fics.map((f, i) => (
           <div
+            key={f.id}
+            onClick={() => ouvrirFic(f)}
             style={{
-              fontFamily: serif,
-              fontSize: 21,
-              fontStyle: "italic",
-              fontWeight: 500,
-              color: C.charbon,
-              margin: "5px 0 2px",
+              background: "#FFFFFF",
+              border: `1px solid ${C.filet}`,
+              borderRadius: 16,
+              padding: "17px 18px",
+              cursor: "pointer",
             }}
           >
-            {f.titre}
-          </div>
-          <div
-            style={{
-              fontFamily: sans,
-              fontSize: 11,
-              fontWeight: 300,
-              letterSpacing: 0.5,
-              color: C.taupe,
-              marginBottom: 12,
-            }}
-          >
-            {f.auteur} · {f.ship}
-          </div>
-          <Trait lus={f.lus} total={f.total} />
-          <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
-            {f.tags.map((t, j) => (
-              <Tag key={t} accent={j === 0 && f.liste === "encours"}>
-                {t}
-              </Tag>
-            ))}
-          </div>
-          {f.notePerso && (
-            <div
-              style={{
-                fontFamily: serif,
-                fontSize: 14,
-                fontStyle: "italic",
-                color: C.taupe,
-                marginTop: 12,
-                paddingLeft: 12,
-                borderLeft: `1px solid ${C.nude}`,
-              }}
-            >
-              {f.notePerso}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
+              <div style={{ fontFamily: serif, fontSize: 21, fontWeight: 500, color: C.charbon, lineHeight: 1.15 }}>
+                {f.titre}
+              </div>
+              <Etiquette>{f.plateforme}</Etiquette>
             </div>
-          )}
-        </div>
-      ))}
+            <div style={{ fontFamily: sans, fontSize: 11, fontWeight: 300, color: C.taupe, marginTop: 4, letterSpacing: 0.5 }}>
+              {f.auteur} — {f.ship}
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <Trait lus={f.lus} total={f.total} />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontFamily: sans,
+                  fontSize: 10,
+                  fontWeight: 300,
+                  letterSpacing: 1,
+                  color: C.taupe,
+                  marginTop: 6,
+                }}
+              >
+                <span>
+                  {f.lus === f.total
+                    ? "Terminée"
+                    : f.lus === 0
+                    ? "À découvrir"
+                    : `Chapitre ${f.lus} sur ${f.total}`}
+                </span>
+                <span style={{ color: C.nude }}>{Math.round((f.lus / f.total) * 100)} %</span>
+              </div>
+            </div>
+          </div>
+        ))}
+        {fics.length === 0 && (
+          <div
+            style={{
+              textAlign: "center",
+              fontFamily: serif,
+              fontStyle: "italic",
+              fontSize: 16,
+              color: C.taupe,
+              padding: 36,
+            }}
+          >
+            Rien ici pour l'instant.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -307,27 +290,21 @@ function Ajouter({ retour }) {
       </div>
     </div>
   );
-
   return (
     <div style={{ padding: "0 24px" }}>
-      <Entete surTitre="Nouvelle lecture" titre="Ajouter une fic" />
+      <Entete titre="Nouvelle lecture" />
       <div style={{ height: 14 }} />
-
-      <Champ label="Lien" placeholder="colle l'adresse de la fic…" />
+      <Champ label="Lien" placeholder="archiveofourown.org/works/…" />
       <Champ label="Titre" placeholder="Les Potions de l'Aube" />
-      <Champ label="Auteur·ice" placeholder="PlumeArgentee" />
-
       <div style={{ display: "flex", gap: 22 }}>
         <div style={{ flex: 1.5 }}>
-          <Champ label="Ship" placeholder="Severus / Hermione" />
+          <Champ label="Auteur·ice" placeholder="PlumeArgentee" />
         </div>
         <div style={{ flex: 0.5 }}>
           <Champ label="Chapitres" placeholder="31" />
         </div>
       </div>
-
-      <Champ label="Fandom" placeholder="Harry Potter" />
-
+      <Champ label="Ship" placeholder="Severus / Hermione" />
       <div style={{ marginBottom: 8 }}>
         <Etiquette>Ajouter à</Etiquette>
       </div>
@@ -354,7 +331,6 @@ function Ajouter({ retour }) {
           </span>
         ))}
       </div>
-
       <button
         onClick={retour}
         style={{
@@ -382,7 +358,6 @@ function Ajouter({ retour }) {
 function FicheFic({ fic, retour }) {
   const [lus, setLus] = useState(fic.lus);
   const pct = Math.round((lus / fic.total) * 100);
-
   return (
     <div style={{ padding: "0 24px" }}>
       <button
@@ -402,10 +377,8 @@ function FicheFic({ fic, retour }) {
         ← Retour
       </button>
 
-      <div style={{ textAlign: "center", padding: "18px 0 6px" }}>
-        <Etiquette>
-          {fic.plateforme} · {fic.statut}
-        </Etiquette>
+      <div style={{ textAlign: "center", padding: "10px 0 0" }}>
+        <Etiquette>{fic.plateforme} · {fic.statut}</Etiquette>
         <h1
           style={{
             fontFamily: serif,
@@ -414,130 +387,108 @@ function FicheFic({ fic, retour }) {
             fontStyle: "italic",
             margin: "8px 0 4px",
             color: C.charbon,
+            lineHeight: 1.1,
           }}
         >
           {fic.titre}
         </h1>
-        <div
-          style={{
-            fontFamily: sans,
-            fontSize: 11.5,
-            fontWeight: 300,
-            letterSpacing: 0.5,
-            color: C.taupe,
-          }}
-        >
-          {fic.auteur} · {fic.ship}
+        <div style={{ fontFamily: sans, fontSize: 11.5, fontWeight: 300, color: C.taupe, letterSpacing: 0.5 }}>
+          par {fic.auteur}
         </div>
-        <div style={{ marginTop: 12 }}>
-          <Etoiles n={fic.note} taille={15} />
-        </div>
-        <div style={{ width: 28, height: 1, background: C.nude, margin: "16px auto 0" }} />
-      </div>
-
-      <div style={{ padding: "20px 0 6px" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-            marginBottom: 10,
-          }}
-        >
-          <Etiquette>Ma progression</Etiquette>
-          <span
-            style={{
-              fontFamily: serif,
-              fontSize: 18,
-              fontStyle: "italic",
-              color: C.nude,
-            }}
-          >
-            {pct}%
-          </span>
-        </div>
-        <Trait lus={lus} total={fic.total} />
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 22,
-            marginTop: 18,
-          }}
-        >
-          <button
-            onClick={() => setLus(Math.max(0, lus - 1))}
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: "50%",
-              border: `1px solid ${C.filet}`,
-              background: "transparent",
-              color: C.taupe,
-              fontSize: 16,
-              cursor: "pointer",
-            }}
-          >
-            −
-          </button>
-          <span
-            style={{
-              fontFamily: serif,
-              fontSize: 22,
-              fontStyle: "italic",
-              color: C.charbon,
-              minWidth: 110,
-              textAlign: "center",
-            }}
-          >
-            chapitre {lus}
-          </span>
-          <button
-            onClick={() => setLus(Math.min(fic.total, lus + 1))}
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: "50%",
-              border: "none",
-              background: C.nude,
-              color: "#fff",
-              fontSize: 16,
-              cursor: "pointer",
-            }}
-          >
-            +
-          </button>
-        </div>
-      </div>
-
-      <div style={{ padding: "22px 0 0" }}>
-        <Etiquette>Mes tags</Etiquette>
-        <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
-          {fic.tags.map((t, i) => (
-            <Tag key={t} accent={i === 0}>
-              {t}
-            </Tag>
+        <div style={{ display: "flex", gap: 6, marginTop: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          <Tag accent>{fic.ship}</Tag>
+          {fic.tags.map((t) => (
+            <Tag key={t}>{t}</Tag>
           ))}
         </div>
       </div>
 
-      <div style={{ padding: "24px 0" }}>
-        <Etiquette>Ma note de lecture</Etiquette>
+      {/* Progression */}
+      <div style={{ marginTop: 30 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+          <Etiquette>Progression</Etiquette>
+          <span style={{ fontFamily: serif, fontSize: 22, fontStyle: "italic", color: C.nude }}>{pct} %</span>
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <Trait lus={lus} total={fic.total} />
+        </div>
         <div
           style={{
-            fontFamily: serif,
-            fontSize: 15,
-            fontStyle: "italic",
-            color: fic.notePerso ? C.charbon : "#C9C0BA",
-            lineHeight: 1.6,
-            marginTop: 10,
-            paddingLeft: 12,
-            borderLeft: `1px solid ${C.nude}`,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: 18,
           }}
         >
-          {fic.notePerso || "capture un moment, une scène, une émotion…"}
+          <span style={{ fontFamily: serif, fontSize: 19, color: C.charbon }}>
+            Chapitre {lus} <span style={{ color: C.taupe, fontSize: 15 }}>sur {fic.total}</span>
+          </span>
+          <button
+            onClick={() => setLus(Math.min(lus + 1, fic.total))}
+            style={{
+              background: "transparent",
+              border: `1px solid ${C.nude}`,
+              borderRadius: 999,
+              padding: "9px 20px",
+              fontFamily: sans,
+              fontSize: 10.5,
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              color: C.nude,
+              cursor: "pointer",
+            }}
+          >
+            + 1 chapitre
+          </button>
         </div>
+      </div>
+
+      <div style={{ height: 1, background: C.filet, margin: "26px 0" }} />
+
+      {/* Note + lien */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <Etiquette>Ma note</Etiquette>
+          <div style={{ marginTop: 5 }}>
+            <Etoiles n={fic.note} taille={14} />
+          </div>
+        </div>
+        <span
+          style={{
+            fontFamily: sans,
+            fontSize: 10.5,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+            color: C.charbon,
+            borderBottom: `1px solid ${C.charbon}`,
+            paddingBottom: 2,
+            cursor: "pointer",
+          }}
+        >
+          Reprendre la lecture
+        </span>
+      </div>
+
+      <div style={{ height: 1, background: C.filet, margin: "26px 0 22px" }} />
+
+      {/* Notes privées */}
+      <Etiquette>Mes notes privées</Etiquette>
+      <div
+        style={{
+          fontFamily: serif,
+          fontSize: 17,
+          fontStyle: "italic",
+          lineHeight: 1.55,
+          color: C.charbon,
+          marginTop: 8,
+          paddingBottom: 24,
+        }}
+      >
+        {fic.notePerso ? (
+          <>« {fic.notePerso} »</>
+        ) : (
+          <span style={{ color: C.taupe }}>Aucune note pour l'instant.</span>
+        )}
       </div>
     </div>
   );
@@ -550,82 +501,51 @@ function Stats() {
     { nom: "Drago / Hermione", n: 11, pct: 29 },
     { nom: "Remus / Tonks", n: 6, pct: 16 },
   ];
-
   return (
     <div style={{ padding: "0 24px" }}>
-      <Entete surTitre="Mon année de lecture" titre="Statistiques" />
-
+      <Entete surTitre="Juin 2026" titre="Statistiques" />
       <div style={{ display: "flex", textAlign: "center", padding: "18px 0 6px" }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontFamily: serif, fontSize: 40, fontStyle: "italic", color: C.charbon, lineHeight: 1 }}>47</div>
-          <div style={{ marginTop: 6 }}>
-            <Etiquette>chapitres ce mois</Etiquette>
-          </div>
+          <div style={{ marginTop: 6 }}><Etiquette>chapitres ce mois</Etiquette></div>
         </div>
         <div style={{ width: 1, background: C.filet }} />
         <div style={{ flex: 1 }}>
           <div style={{ fontFamily: serif, fontSize: 40, fontStyle: "italic", color: C.nude, lineHeight: 1 }}>12</div>
-          <div style={{ marginTop: 6 }}>
-            <Etiquette>jours d'affilée</Etiquette>
-          </div>
+          <div style={{ marginTop: 6 }}><Etiquette>jours d'affilée</Etiquette></div>
         </div>
       </div>
 
-      <div style={{ padding: "26px 0 0" }}>
-        <Etiquette>Mes ships les plus lus</Etiquette>
+      <div style={{ height: 1, background: C.filet, margin: "22px 0" }} />
+
+      <Etiquette>Mes ships les plus lus</Etiquette>
+      <div style={{ marginTop: 16 }}>
         {ships.map((s) => (
-          <div key={s.nom} style={{ padding: "14px 0 4px" }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-                marginBottom: 8,
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: serif,
-                  fontSize: 16,
-                  fontStyle: "italic",
-                  color: C.charbon,
-                }}
-              >
-                {s.nom}
-              </span>
-              <span
-                style={{
-                  fontFamily: sans,
-                  fontSize: 10,
-                  letterSpacing: 1,
-                  color: C.taupe,
-                }}
-              >
-                {s.n} fics
-              </span>
+          <div key={s.nom} style={{ marginBottom: 18 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <span style={{ fontFamily: serif, fontSize: 16.5, color: C.charbon }}>{s.nom}</span>
+              <span style={{ fontFamily: sans, fontSize: 10, letterSpacing: 1, color: C.taupe }}>{s.n} fics</span>
             </div>
-            <div style={{ height: 1, background: C.filet, position: "relative" }}>
-              <div
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  top: -0.5,
-                  height: 2,
-                  width: `${s.pct}%`,
-                  background: C.nude,
-                }}
-              />
+            <div style={{ marginTop: 7 }}>
+              <Trait lus={s.pct} total={100} />
             </div>
           </div>
         ))}
       </div>
 
-      <div style={{ padding: "30px 0" }}>
-        <Etiquette>Mes plateformes</Etiquette>
-        <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
-          <Tag accent>AO3 · 31</Tag>
-          <Tag>FFnet · 14</Tag>
-          <Tag>Wattpad · 10</Tag>
+      <div
+        style={{
+          background: C.nudePale,
+          borderRadius: 4,
+          padding: "16px 18px",
+          marginTop: 10,
+          marginBottom: 20,
+          textAlign: "center",
+        }}
+      >
+        <Etiquette>Premium</Etiquette>
+        <div style={{ fontFamily: serif, fontSize: 15.5, fontStyle: "italic", color: C.charbon, marginTop: 5, lineHeight: 1.45 }}>
+          Historique complet, export de votre bibliothèque et statistiques par fandom.
         </div>
       </div>
     </div>
@@ -641,11 +561,9 @@ function Profil() {
     ["Thème", "Élégance"],
     ["Confidentialité & RGPD"],
   ];
-
   return (
     <div style={{ padding: "0 24px" }}>
-      <Entete titre="Mon profil" />
-
+      <Entete titre="Profil" />
       <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
         <div
           style={{
@@ -670,7 +588,6 @@ function Profil() {
           <Etiquette>Lectrice depuis juin 2026 · 4 fics</Etiquette>
         </div>
       </div>
-
       <div style={{ marginTop: 14 }}>
         {lignes.map(([label, badge], i) => (
           <div
@@ -703,7 +620,6 @@ function Profil() {
           </div>
         ))}
       </div>
-
       <div style={{ textAlign: "center", padding: 20 }}>
         <Etiquette>Fanthèque · v1.0</Etiquette>
       </div>
@@ -763,7 +679,7 @@ function Retrouve({ ouvrirFic }) {
               {part}
             </span>
           ) : (
-            <React.Fragment key={i}>{part}</React.Fragment>
+            <span key={i}>{part}</span>
           )
         )}
       </>
@@ -772,8 +688,7 @@ function Retrouve({ ouvrirFic }) {
 
   return (
     <div style={{ padding: "0 24px" }}>
-      <Entete surTitre="C'était quelle fic, déjà ?" titre="Retrouve-fic" />
-
+      <Entete surTitre="Plus jamais une fic perdue" titre="Retrouve-fic" />
       <div style={{ paddingTop: 16 }}>
         <Etiquette>Décris ce dont tu te souviens</Etiquette>
         <input
@@ -817,66 +732,60 @@ function Retrouve({ ouvrirFic }) {
         </div>
       </div>
 
-      <div style={{ padding: "24px 0 4px" }}>
+      <div style={{ marginTop: 22 }}>
         <Etiquette>
           {resultats.length > 0
             ? `${resultats.length} souvenir${resultats.length > 1 ? "s" : ""} retrouvé${resultats.length > 1 ? "s" : ""}`
-            : "aucun souvenir ne correspond"}
+            : "Aucun souvenir ne correspond"}
         </Etiquette>
-      </div>
-
-      {resultats.map((m, i) => {
-        const fic = FICS.find((f) => f.id === m.ficId);
-        return (
-          <div
-            key={m.ficId}
-            onClick={() => fic && ouvrirFic(fic)}
-            style={{
-              padding: "16px 2px",
-              borderBottom: i < resultats.length - 1 ? `1px solid ${C.filet}` : "none",
-              cursor: "pointer",
-            }}
-          >
-            <Etiquette>{m.plateforme}</Etiquette>
-            <div
-              style={{
-                fontFamily: serif,
-                fontSize: 19,
-                fontStyle: "italic",
-                fontWeight: 500,
-                color: C.charbon,
-                margin: "4px 0 2px",
-              }}
-            >
-              {m.titre}
-            </div>
-            <div
-              style={{
-                fontFamily: sans,
-                fontSize: 11,
-                fontWeight: 300,
-                color: C.taupe,
-                marginBottom: 8,
-              }}
-            >
-              {m.auteur}
-            </div>
-            <div
-              style={{
-                fontFamily: serif,
-                fontSize: 14,
-                fontStyle: "italic",
-                color: C.taupe,
-                lineHeight: 1.5,
-                paddingLeft: 12,
-                borderLeft: `1px solid ${C.nude}`,
-              }}
-            >
-              « <Surligne texte={m.extrait} /> »
-            </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 10 }}>
+          {resultats.map((r) => {
+            const fic = FICS.find((f) => f.id === r.ficId);
+            return (
+              <div
+                key={r.ficId}
+                onClick={() => fic && ouvrirFic(fic)}
+                style={{
+                  background: "#FFFFFF",
+                  border: `1px solid ${C.filet}`,
+                  borderRadius: 16,
+                  padding: "15px 17px",
+                  cursor: "pointer",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
+                  <div style={{ fontFamily: serif, fontSize: 18.5, fontWeight: 500, color: C.charbon }}>
+                    {r.titre}
+                  </div>
+                  <Etiquette>{r.plateforme}</Etiquette>
+                </div>
+                <div style={{ fontFamily: sans, fontSize: 10.5, fontWeight: 300, color: C.taupe, marginTop: 2, letterSpacing: 0.5 }}>
+                  {r.auteur}
+                </div>
+                <div
+                  style={{
+                    fontFamily: serif,
+                    fontSize: 14.5,
+                    fontStyle: "italic",
+                    color: C.charbon,
+                    lineHeight: 1.5,
+                    marginTop: 9,
+                    paddingLeft: 12,
+                    borderLeft: `2px solid ${C.nudePale}`,
+                  }}
+                >
+                  📍 <Surligne texte={r.extrait} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {resultats.length === 0 && (
+          <div style={{ fontFamily: serif, fontStyle: "italic", fontSize: 15, color: C.taupe, marginTop: 14, lineHeight: 1.5 }}>
+            Essaie d'autres mots — ou laisse la recherche sémantique ✨ Premium élargir aux souvenirs proches.
           </div>
-        );
-      })}
+        )}
+      </div>
     </div>
   );
 }
@@ -892,11 +801,6 @@ export default function App() {
     { id: "profil", label: "Profil" },
   ];
 
-  const ouvrirFic = (fic) => {
-    setFicOuverte(fic);
-    setEcran("fiche");
-  };
-
   return (
     <div
       style={{
@@ -908,42 +812,45 @@ export default function App() {
         padding: 20,
       }}
     >
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@200;300;400;500&display=swap'); * { box-sizing: border-box; }`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@200;300;400;500&display=swap');
+        * { box-sizing: border-box; }
+      `}</style>
 
       <div
         style={{
-          width: 390,
-          maxWidth: "100%",
-          height: 780,
+          width: 350,
+          height: 700,
           background: C.fond,
-          borderRadius: 36,
-          boxShadow: "0 24px 70px rgba(43,38,39,.18)",
-          overflow: "hidden",
+          color: C.charbon,
+          borderRadius: 34,
+          border: "8px solid #1E1A1B",
+          boxShadow: "0 30px 80px rgba(43,38,39,.35)",
           display: "flex",
           flexDirection: "column",
+          overflow: "hidden",
           position: "relative",
         }}
       >
-        <div style={{ flex: 1, overflowY: "auto" }}>
-          {ecran === "biblio" && <Bibliotheque ouvrirFic={ouvrirFic} />}
-          {ecran === "retrouve" && <Retrouve ouvrirFic={ouvrirFic} />}
+        <div style={{ flex: 1, overflowY: "auto", paddingBottom: 86 }}>
+          {ecran === "biblio" && !ficOuverte && <Bibliotheque ouvrirFic={(f) => setFicOuverte(f)} />}
+          {ficOuverte && <FicheFic fic={ficOuverte} retour={() => setFicOuverte(null)} />}
+          {ecran === "ajouter" && <Ajouter retour={() => setEcran("biblio")} />}
+          {ecran === "retrouve" && !ficOuverte && <Retrouve ouvrirFic={(f) => setFicOuverte(f)} />}
           {ecran === "stats" && <Stats />}
           {ecran === "profil" && <Profil />}
-          {ecran === "ajouter" && <Ajouter retour={() => setEcran("biblio")} />}
-          {ecran === "fiche" && ficOuverte && (
-            <FicheFic fic={ficOuverte} retour={() => setEcran("biblio")} />
-          )}
-          <div style={{ height: 30 }} />
         </div>
 
-        {/* bouton flottant + */}
-        {ecran !== "ajouter" && ecran !== "fiche" && (
+        {!ficOuverte && ecran !== "ajouter" && (
           <button
-            onClick={() => setEcran("ajouter")}
+            onClick={() => {
+              setEcran("ajouter");
+              setFicOuverte(null);
+            }}
             style={{
               position: "absolute",
+              bottom: 80,
               right: 22,
-              bottom: 78,
               width: 50,
               height: 50,
               borderRadius: "50%",
@@ -951,44 +858,58 @@ export default function App() {
               background: C.charbon,
               color: "#fff",
               fontSize: 22,
-              fontWeight: 200,
+              fontWeight: 300,
               cursor: "pointer",
-              boxShadow: "0 8px 24px rgba(43,38,39,.25)",
+              boxShadow: "0 8px 22px rgba(43,38,39,.3)",
             }}
           >
             +
           </button>
         )}
 
-        {/* barre d'onglets */}
         <div
           style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
             display: "flex",
+            background: "rgba(252,250,247,.97)",
             borderTop: `1px solid ${C.filet}`,
-            background: C.fond,
+            padding: "13px 0 16px",
           }}
         >
           {tabs.map((t) => {
-            const actif =
-              ecran === t.id || (t.id === "biblio" && (ecran === "fiche" || ecran === "ajouter"));
+            const actif = ecran === t.id && !ficOuverte;
             return (
               <button
                 key={t.id}
-                onClick={() => setEcran(t.id)}
+                onClick={() => {
+                  setEcran(t.id);
+                  setFicOuverte(null);
+                }}
                 style={{
                   flex: 1,
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  padding: "14px 0 16px",
                   fontFamily: sans,
                   fontSize: 9.5,
                   fontWeight: actif ? 500 : 300,
-                  letterSpacing: 2,
+                  letterSpacing: 2.5,
                   textTransform: "uppercase",
-                  color: actif ? C.nude : C.taupe,
+                  color: actif ? C.charbon : C.taupe,
                 }}
               >
+                <div
+                  style={{
+                    width: 4,
+                    height: 4,
+                    borderRadius: "50%",
+                    background: actif ? C.nude : "transparent",
+                    margin: "0 auto 6px",
+                  }}
+                />
                 {t.label}
               </button>
             );
